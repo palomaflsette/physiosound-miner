@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.ipynb_checkpoints
+.env
+.env.*
+.vscode
+.virtual_documents
+data/raw/
+data/processed/
+outputs/
+.pytest_cache
