@@ -117,3 +117,81 @@ Ao final dessas etapas, teremos:
 - Vetores prontos para classificação e mineração de dados
 - Curvas 3D para visualização
 - Dados organizados para treinamento, teste e demonstração interativa
+
+
+# Ilustrando o Pré-processamento e a Extração de Características para a Geração de Datasets
+
+## Segmentação por janelas
+```
+Áudio Original (.wav)  →  [Pré-processamento]
+                           - Normalização
+                           - Filtro (Binomial ou Kalman)
+                           - Decimação
+                           
+                           ↓
+
+                           - Segmentação
+                          
+                           ↓
+████████████████████████████████████████
+        Sinal contínuo após filtro
+        |___________ Janela 0 ___________|
+                      |___________ Janela 1____________|
+                                  |____________ Janela 2 ____________|
+                                           ...
+
+Cada Janela de 1s com, por exemplo, 50% de sobreposição (overlap=0.5)
+
+↓
+```
+
+## Para cada janela
+### 1)  FFT + Frequências Dominantes
+
+```
+→ FFT → Frequências dominantes.
+  Por exemplo, para X janelas, temos em cada uma as frequências dominantes extraídas:
+
+    - Janela 0: [30Hz, 34Hz, 38Hz, 42Hz, 46Hz, 47Hz]
+    - Janela 1: [22Hz, 25Hz, 26Hz, 27Hz, 29Hz, 30Hz, 31Hz, 35Hz, 33Hz, 39Hz, 43Hz, 47Hz, 48Hz]
+    - Janela 2: [26Hz, 30Hz, 34Hz, 36Hz, 38Hz, 40Hz, 43Hz, 45Hz, 47Hz, 49Hz, 51Hz]
+        ...
+    - Janela X: [X[0]Hz, ..., X[-1]Hz]
+    
+→ Para cada frequência fᵢ de cada janela:
+  - ITS_fᵢ (com i=[0..N]) => vetor topológico extraído da winding (curvas no plano complexo)
+```
+
+### 2) MFCC
+
+```
+→ Extração MFCC → [mfcc_0, mfcc_1, ..., mfcc_X] (média por janela)
+
+```
+
+### 3) Wavelet
+```
+→ DWT (ex: db4, nível 4~6) → 
+   - Lₙ e Dₙ (níveis de detalhe e aproximação)
+   - Para cada nível: média, desvio padrão, energia
+
+```
+
+### 4) Resultado (Dataframe → CSV)
+
+```
+┌────────────┬──────────────────┬────────────────┬──────────────┬────────────────┬────────────────────┐
+│ window_id  │   freq           │   ITS_fᵢ       │    MFCCs     │  Wavelet       │     Metadata       │
+├────────────┼──────────────────┼────────────────┼──────────────┼────────────────┼────────────────────┤
+│     0      │   30 Hz          │ [its_vector_0] │ [mfcc_win0]  │[wave_feat_win0]│ file_id: 101_...   │
+│     0      │   34 Hz          │ [its_vector_1] │ [mfcc_win0]  │[wave_feat_win0]│ file_id: 101_...   │
+│     0      │   38 Hz          │ [its_vector_2] │ [mfcc_win0]  │[wave_feat_win0]│ file_id: 101_...   │
+│     1      │   30 Hz          │ [its_vector_3] │ [mfcc_win1]  │[wave_feat_win1]│ file_id: 101_...   │
+│     1      │   34 Hz          │ [its_vector_4] │ [mfcc_win1]  │[wave_feat_win1]│ file_id: 101_...   │
+│    ...     │    ...           │     ...        │     ...      │    ...         │        ...         |
+|     X      │[X[0]Hz...X[-1]Hz]| [its_vector_N] | [mfcc_winX]  |[wave_feat_winX]| file_id: 101_...   | 
+└────────────┴──────────────────┴────────────────┴──────────────┴────────────────┴────────────────────┘
+
+
+```
+

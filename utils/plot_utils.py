@@ -1,3 +1,4 @@
+from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import scipy.io.wavfile as wav
 import matplotlib.pyplot as plt
@@ -121,36 +122,33 @@ def plot_frequency_components(signal: np.ndarray, fs: int, freqs: List[float], b
     plt.show()
     
 
-def plot_winding_xy(x: np.ndarray, y: np.ndarray, freq: float = None, title: str = None, show_center: bool = True) -> None:
-    """
-    Plot a 2D winding curve from x and y components.
-
-    Parameters:
-        x (np.ndarray): Real part of winding.
-        y (np.ndarray): Imaginary part of winding.
-        freq (float): Optional frequency label to display in the title.
-        title (str): Optional custom title.
-        show_center (bool): Whether to show the centroid point.
-    """
+def plot_winding_xy(x, y, freq=None, title=None, show_center=True, return_fig=False):
+    fig, ax = plt.subplots(figsize=(6, 6))
     cx, cy = np.mean(x), np.mean(y)
 
-    plt.figure(figsize=(6, 6))
-    plt.plot(x, y, color='mediumturquoise', linewidth=1)
+    ax.plot(x, y, color='mediumturquoise', linewidth=1)
     if show_center:
-        plt.scatter(cx, cy, color='red', label='Centroid')
-    plt.axis('equal')
-    plt.grid(True)
+        ax.scatter(cx, cy, color='red', label='Centroid')
+    ax.axis('equal')
+    ax.grid(True)
+
     if title:
-        plt.title(title)
+        ax.set_title(title)
     elif freq:
-        plt.title(f"Winding – {freq:.2f} Hz")
+        ax.set_title(f"Winding – {freq:.2f} Hz")
     else:
-        plt.title("Winding Curve")
-    plt.xlabel("Real Axis")
-    plt.ylabel("Imaginary Axis")
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
+        ax.set_title("Winding Curve")
+
+    ax.set_xlabel("Real Axis")
+    ax.set_ylabel("Imaginary Axis")
+    ax.legend()
+
+    if return_fig:
+        return fig
+    else:
+        plt.tight_layout()
+        plt.show()  # só funciona no Jupyter
+
 
 
 
@@ -183,38 +181,54 @@ def plot_signal_in_time(filepath: str, duration: float = 5.0):
     plt.show()
 
 
-def extract_winding_features(signal: np.ndarray, fs: int, freq: float, duration: float = 1.0) -> dict:
+
+def takens_embedding(signal: np.ndarray, tau: int, dim: int = 3) -> np.ndarray:
     """
-    Gera um vetor de características numéricas a partir da winding de uma frequência.
+    Gera um embedding de Takens a partir de um sinal 1D.
+
+    Parameters:
+        signal (np.ndarray): Sinal 1D de entrada.
+        tau (int): Tempo de atraso (lag).
+        dim (int): Dimensão do espaço embutido (tipicamente 2 ou 3).
 
     Returns:
-        dict com features: centroide, raio médio, desvio, simetria, etc.
+        np.ndarray: Matriz de shape (N, dim), onde N = len(signal) - (dim - 1)*tau.
     """
-    t = np.arange(len(signal)) / fs
-    n_samples = int(fs * duration)
-    t = t[:n_samples]
-    signal = signal[:n_samples]
+    n_points = len(signal) - (dim - 1) * tau
+    return np.array([signal[i:i + tau * dim:tau] for i in range(n_points)])
 
-    # Gera winding
-    winding = signal * np.exp(-2j * np.pi * freq * t)
-    x = winding.real
-    y = winding.imag
 
-    # Centroide
-    cx, cy = np.mean(x), np.mean(y)
-    r = np.sqrt((x - cx) ** 2 + (y - cy) ** 2)
+def plot_takens_embedding(signal: np.ndarray, tau: int = 10, dim: int = 3, title: str = "Takens Embedding"):
+    """
+    Plota o embedding de Takens em 2D ou 3D.
 
-    features = {
-        'freq': freq,
-        'centro_x': cx,
-        'centro_y': cy,
-        'raio_medio': np.mean(r),
-        'raio_std': np.std(r),
-        'raio_max': np.max(r),
-        'raio_min': np.min(r),
-        'simetria_x': np.mean(np.abs(x + x[::-1])),  # eixo x
-        'simetria_y': np.mean(np.abs(y - y[::-1])),  # eixo y
-        'densidade_nucleo': np.mean(r < (0.2 * np.max(r)))  # % de pontos no núcleo
-    }
+    Parameters:
+        signal (np.ndarray): Sinal de entrada.
+        tau (int): Atraso temporal.
+        dim (int): Dimensão do embedding.
+        title (str): Título do gráfico.
+    """
+    embedded = takens_embedding(signal, tau, dim)
 
-    return features
+    fig = plt.figure(figsize=(6, 6))
+    if embedded.shape[0] == 0:
+        return fig  # figura vazia se não houver dados suficientes
+
+    if dim == 3:
+        ax = fig.add_subplot(111, projection='3d')
+        ax.plot(embedded[:, 0], embedded[:, 1], embedded[:, 2], lw=0.8)
+        ax.set_xlabel("x(t)")
+        ax.set_ylabel(f"x(t+{tau})")
+        ax.set_zlabel(f"x(t+{2*tau})")
+    elif dim == 2:
+        ax = fig.add_subplot(111)
+        ax.plot(embedded[:, 0], embedded[:, 1], lw=0.8)
+        ax.set_xlabel("x(t)")
+        ax.set_ylabel(f"x(t+{tau})")
+    else:
+        raise ValueError("Dimensão suportada: 2 ou 3")
+
+    plt.title(title)
+    plt.tight_layout()
+    return fig
+

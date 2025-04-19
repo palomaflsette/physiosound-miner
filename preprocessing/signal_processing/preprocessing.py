@@ -53,18 +53,54 @@ def binomial_filter(signal: np.ndarray, iterations: int = 1) -> np.ndarray:
     return signal
 
 
-def preprocess_signal(signal: np.ndarray, fs: int, apply_filter: bool = True, apply_smoothing: bool = True) -> np.ndarray:
+def kalman_filter(signal: np.ndarray) -> np.ndarray:
+    """
+    Apply a simple 1D Kalman filter to smooth the signal.
+
+    Returns:
+        Smoothed signal (same shape as input)
+    """
+    n = len(signal)
+    x = np.zeros(n)  # estimated signal
+    P = np.zeros(n)  # estimated error
+    x[0] = signal[0]
+    P[0] = 1.0
+
+    Q = 1e-5  # process variance (tune this)
+    R = 0.03  # measurement noise (tune this)
+
+    for k in range(1, n):
+        # Prediction
+        x_pred = x[k-1]
+        P_pred = P[k-1] + Q
+
+        # Update
+        K = P_pred / (P_pred + R)
+        x[k] = x_pred + K * (signal[k] - x_pred)
+        P[k] = (1 - K) * P_pred
+
+    return x
+
+
+def preprocess_signal(
+    signal: np.ndarray, 
+    fs: int, 
+    apply_filter: bool = True, 
+    apply_smoothing: bool = True,
+    use_kalman: bool = True
+    ) -> np.ndarray:
     """
     Execute the complete preprocessing pipeline:
     - Normalization
-    - Optional bandpass filtering
-    - Optional smoothing with binomial filter
+    - Bandpass filter (Butterworth)
+    - Smoothing: Binomial or Kalman
 
     Parameters:
         signal (np.ndarray): Raw input signal.
         fs (int): Sampling rate in Hz.
         apply_filter (bool): Whether to apply bandpass filter. Default is True.
-        apply_smoothing (bool): Whether to apply binomial smoothing. Default is True.
+        apply_smoothing (bool): Whether to apply smoothing. Default is False.
+        use_kalman (bool): Whether to apply Kalman filter. Default is True.
 
     Returns:
         np.ndarray: Preprocessed signal ready for feature extraction.
@@ -73,5 +109,8 @@ def preprocess_signal(signal: np.ndarray, fs: int, apply_filter: bool = True, ap
     if apply_filter:
         signal = bandpass_filter(signal, fs)
     if apply_smoothing:
-        signal = binomial_filter(signal)
+        if use_kalman:
+            signal = kalman_filter(signal)
+        else:
+            signal = binomial_filter(signal)
     return signal

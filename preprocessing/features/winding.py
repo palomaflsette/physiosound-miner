@@ -1,5 +1,7 @@
+import os
+from typing import List, Union
 from scipy.spatial import cKDTree
-from typing import Dict
+from typing import Dict, Tuple
 from scipy.stats import entropy
 import numpy as np
 
@@ -126,3 +128,63 @@ def extract_winding_features_extended(signal: np.ndarray, fs: int, freq: float, 
     }
 
     return features
+
+
+def get_winding_curve(signal: np.ndarray, fs: int, freq: float, duration: float = 1.0) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Retorna os vetores (x, y) da curva winding no plano complexo, para visualização.
+
+    Parameters:
+        signal (np.ndarray): Sinal no domínio do tempo.
+        fs (int): Taxa de amostragem (Hz).
+        freq (float): Frequência dominante a representar.
+        duration (float): Duração (em segundos) da curva.
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray]: Vetores x (parte real) e y (parte imaginária).
+    """
+    n_samples = int(fs * duration)
+    t = np.arange(n_samples) / fs
+    signal = signal[:n_samples]
+
+    winding = signal * np.exp(-2j * np.pi * freq * t)
+    return winding.real, winding.imag
+
+
+def save_windings_as_npy(signal: np.ndarray,
+                         fs: int,
+                         freqs: List[float],
+                         output_dir: str,
+                         prefix: str = "winding",
+                         duration: float = 1.0) -> None:
+    """
+    Salva os vetores (x, y) de cada winding em arquivos .npy.
+
+    Parameters:
+        signal (np.ndarray): Sinal de entrada (1D).
+        fs (int): Taxa de amostragem em Hz.
+        freqs (List[float]): Lista de frequências a considerar.
+        output_dir (str): Pasta destino para salvar os arquivos.
+        prefix (str): Prefixo do nome do arquivo. Default é "winding".
+        duration (float): Duração (em segundos) para considerar do sinal.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    n_samples = int(fs * duration)
+
+    for f in freqs:
+        t = np.arange(n_samples) / fs
+        winding = signal[:n_samples] * np.exp(-2j * np.pi * f * t)
+        x = winding.real
+        y = winding.imag
+
+        data = {
+            'x': x,
+            'y': y,
+            'freq': f,
+            'fs': fs,
+            'duration': duration
+        }
+
+        filename = os.path.join(output_dir, f"{prefix}_{f:.2f}Hz.npy")
+        np.save(filename, data)
+        print(f"✔️ Winding salvo: {filename}")
