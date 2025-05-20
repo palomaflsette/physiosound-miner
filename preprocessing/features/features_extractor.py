@@ -13,6 +13,8 @@ def extract_features_from_segmented_signal(
     get_dom_freqs_fn: Callable[[np.ndarray, np.ndarray, float], List[float]],
     extract_mfcc_fn: Callable[[np.ndarray, int], List[float]],
     extract_wavelet_fn: Callable[[np.ndarray], Dict[str, float]],
+    extract_rqa_fn: Callable[[np.ndarray, int,
+                              str, int], Dict[str, float]] = None,
     window_sec: float = 2.0,
     overlap: float = 0.5,
     threshold: float = 0.2,
@@ -20,10 +22,11 @@ def extract_features_from_segmented_signal(
     n_mfcc: int = 13
 ) -> pd.DataFrame:
     """
-    Extrai ITS, MFCCs e Wavelet features de um sinal segmentado, combinando os vetores em um único DataFrame.
+    Extrai ITS, MFCCs, Wavelet e opcionalmente RQA de um sinal segmentado,
+    combinando os vetores em um único DataFrame por janela.
 
     Returns:
-        pd.DataFrame: DataFrame contendo vetores ITS+MFCC+Wavelet com metadados.
+        pd.DataFrame: DataFrame contendo vetores ITS+MFCC+Wavelet+RQA com metadados.
     """
     windows = segment_signal(signal, fs, window_sec, overlap)
     all_features = []
@@ -41,17 +44,25 @@ def extract_features_from_segmented_signal(
         # Wavelet features
         wavelet_feats = extract_wavelet_fn(window)
 
+        # RQA (opcional)
+        rqa_feats = extract_rqa_fn(
+            window, fs, file_id, i) if extract_rqa_fn else {}
+
         for feat in its_list:
             feat["file_id"] = file_id
             feat["window_id"] = i
 
-            # Adiciona MFCCs numerados: mfcc_0, mfcc_1, ...
+            # Adiciona MFCCs numerados
             for j, val in enumerate(mfccs):
                 feat[f"mfcc_{j}"] = val
 
             # Adiciona descritores da wavelet
             for k, val in wavelet_feats.items():
                 feat[f"wave_{k}"] = val
+
+            # Adiciona RQA (se houver)
+            for k, val in rqa_feats.items():
+                feat[f"rqa_{k}"] = val
 
             all_features.append(feat)
 
