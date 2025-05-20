@@ -1,5 +1,7 @@
-from scipy.signal import butter, filtfilt
+from scipy.signal import butter, filtfilt, decimate
 import numpy as np
+from typing import Tuple
+
 
 
 def normalize_signal(signal: np.ndarray) -> np.ndarray:
@@ -15,7 +17,7 @@ def normalize_signal(signal: np.ndarray) -> np.ndarray:
     return signal / np.max(np.abs(signal))
 
 
-def bandpass_filter(signal: np.ndarray, fs: int, lowcut: float = 20.0, highcut: float = 2000.0, order: int = 4) -> np.ndarray:
+def bandpass_filter(signal: np.ndarray, fs: int, lowcut: float = 20.0, highcut: float = 800.0, order: int = 4) -> np.ndarray:
     """
     Apply a Butterworth bandpass filter to the signal.
 
@@ -32,6 +34,10 @@ def bandpass_filter(signal: np.ndarray, fs: int, lowcut: float = 20.0, highcut: 
     nyq = 0.5 * fs
     low = lowcut / nyq
     high = highcut / nyq
+    if not (0 < low < high < 1):
+        print(
+            f"Aviso: corte inválido. fs={fs}, lowcut={lowcut}, highcut={highcut}")
+        return signal  # retorna sem filtrar
     b, a = butter(order, [low, high], btype='band')
     return filtfilt(b, a, signal)
 
@@ -46,6 +52,7 @@ def binomial_filter(signal: np.ndarray, iterations: int = 1) -> np.ndarray:
 
     Returns:
         np.ndarray: Smoothed signal.
+        
     """
     kernel = np.array([1, 2, 1]) / 4.0
     for _ in range(iterations):
@@ -114,3 +121,36 @@ def preprocess_signal(
         else:
             signal = binomial_filter(signal)
     return signal
+
+
+def prepare_signal(
+    signal: np.ndarray,
+    fs: int,
+    duration: float = 5.0,
+    downsample: int = 10,
+    use_kalman: bool = False
+) -> Tuple[np.ndarray, int]:
+    """
+    Aplica pré-processamento e redução de taxa de amostragem ao sinal.
+
+    Parâmetros:
+        signal (np.ndarray): Sinal de entrada (1D, domínio do tempo).
+        fs (int): Taxa de amostragem original (Hz).
+        duration (float): Duração máxima em segundos a ser considerada do sinal (default: 5.0).
+        downsample (int): Fator de decimação. Ex: 10 reduz de 44100 Hz para 4410 Hz (default: 10).
+        use_kalman (bool): Se True, aplica filtro de Kalman; caso contrário, filtro binomial.
+
+    Retorna:
+        Tuple[np.ndarray, int]: Tupla com o sinal pré-processado e a nova taxa de amostragem.
+    """
+    signal = preprocess_signal(signal, fs, use_kalman=use_kalman)
+
+    max_samples = int(fs * duration)
+    signal = signal[:max_samples]
+    if len(signal) == 0:
+        raise ValueError("O sinal está vazio após o pré-processamento.")
+    
+    signal = decimate(signal, q=downsample)
+    fs_new = fs // downsample
+
+    return signal, fs_new

@@ -15,12 +15,13 @@ Este documento descreve todas as etapas envolvidas no pré-processamento dos sin
 ## 2. Pré-processamento Básico do Sinal
 
 - **Normalização de amplitude**
+
   - Escala o sinal entre -1 e 1 para padronização
-
 - **Remoção de ruído de fundo (opcional)**
-  - Filtro passa-baixa ou band-pass (20–2000 Hz)
 
+  - Filtro passa-baixa ou band-pass (20–2000 Hz)
 - **Suavização com filtro Kalman ou Binomial**
+
   - Reduz ruído de alta frequência sem distorcer forma geral do sinal
 
 ---
@@ -118,20 +119,20 @@ Ao final dessas etapas, teremos:
 - Curvas 3D para visualização
 - Dados organizados para treinamento, teste e demonstração interativa
 
-
 # Ilustrando o Pré-processamento e a Extração de Características para a Geração de Datasets
 
 ## Segmentação por janelas
+
 ```
 Áudio Original (.wav)  →  [Pré-processamento]
                            - Normalização
                            - Filtro (Binomial ou Kalman)
                            - Decimação
-                           
+                         
                            ↓
 
                            - Segmentação
-                          
+                        
                            ↓
 ████████████████████████████████████████
         Sinal contínuo após filtro
@@ -146,6 +147,7 @@ Cada Janela de 1s com, por exemplo, 50% de sobreposição (overlap=0.5)
 ```
 
 ## Para cada janela
+
 ### 1)  FFT + Frequências Dominantes
 
 ```
@@ -157,7 +159,7 @@ Cada Janela de 1s com, por exemplo, 50% de sobreposição (overlap=0.5)
     - Janela 2: [26Hz, 30Hz, 34Hz, 36Hz, 38Hz, 40Hz, 43Hz, 45Hz, 47Hz, 49Hz, 51Hz]
         ...
     - Janela X: [X[0]Hz, ..., X[-1]Hz]
-    
+  
 → Para cada frequência fᵢ de cada janela:
   - ITS_fᵢ (com i=[0..N]) => vetor topológico extraído da winding (curvas no plano complexo)
 ```
@@ -170,6 +172,7 @@ Cada Janela de 1s com, por exemplo, 50% de sobreposição (overlap=0.5)
 ```
 
 ### 3) Wavelet
+
 ```
 → DWT (ex: db4, nível 4~6) → 
    - Lₙ e Dₙ (níveis de detalhe e aproximação)
@@ -194,4 +197,3 @@ Cada Janela de 1s com, por exemplo, 50% de sobreposição (overlap=0.5)
 
 
 ```
-
