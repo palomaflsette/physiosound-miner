@@ -14,10 +14,10 @@ def extract_features_from_segmented_signal(
     extract_mfcc_fn: Callable[[np.ndarray, int], List[float]] = None,
     extract_wavelet_fn: Callable[[np.ndarray], Dict[str, float]] = None,
     extract_rqa_fn: Callable[[np.ndarray, int, str, int], Dict[str, float]] = None,
-    window_sec: float = 2.0,
+    window_duration_sec: float = 2.0,
     overlap: float = 0.5,
     threshold: float = 0.2,
-    duration: float = 1.0,
+    winding_duration: float = 5.0,
     n_mfcc: int = 13
 ) -> pd.DataFrame:
     """
@@ -27,7 +27,7 @@ def extract_features_from_segmented_signal(
     Returns:
         pd.DataFrame: DataFrame contendo vetores ITS+MFCC+Wavelet+RQA com metadados.
     """
-    windows = segment_signal(signal, fs, window_sec, overlap)
+    windows = segment_signal(signal, fs, window_duration_sec, overlap)
     all_features = []
 
     for i, window in enumerate(windows):
@@ -35,13 +35,19 @@ def extract_features_from_segmented_signal(
         dominantes = get_dom_freqs_fn(freqs, mags, threshold)
 
         # ITS (para cada frequência dominante de cada janela)
-        its_list = extract_its_fn(window, fs, dominantes, duration)
+        its_list = extract_its_fn(window, fs, dominantes, winding_duration)
 
         # MFCC (único vetor por janela)
-        mfccs = extract_mfcc_fn(window, fs, n_mfcc)
+        if extract_mfcc_fn is not None:
+            mfccs = extract_mfcc_fn(window, fs, n_mfcc)
+        else:
+            mfccs = []
 
+        if extract_wavelet_fn is not None:
         # Wavelet features (único por janela)
-        wavelet_feats = extract_wavelet_fn(window)
+            wavelet_feats = extract_wavelet_fn(window)
+        else:
+            wavelet_feats = {}
 
         # RQA (único por janela)
         rqa_feats = extract_rqa_fn(window, fs, file_id, i) if extract_rqa_fn else {}

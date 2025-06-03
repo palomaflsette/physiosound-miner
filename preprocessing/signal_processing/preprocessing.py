@@ -126,8 +126,8 @@ def preprocess_signal(
 def prepare_signal(
     signal: np.ndarray,
     fs: int,
-    duration: float = 5.0,
-    downsample: int = 10,
+    max_audio_duration: float = 5.0,
+    decimation_factor: int = 10,
     use_kalman: bool = False
 ) -> Tuple[np.ndarray, int]:
     """
@@ -136,8 +136,8 @@ def prepare_signal(
     Parâmetros:
         signal (np.ndarray): Sinal de entrada (1D, domínio do tempo).
         fs (int): Taxa de amostragem original (Hz).
-        duration (float): Duração máxima em segundos a ser considerada do sinal (default: 5.0).
-        downsample (int): Fator de decimação. Ex: 10 reduz de 44100 Hz para 4410 Hz (default: 10).
+        max_audio_duration (float): Duração máxima em segundos a ser considerada do sinal (default: 5.0).
+        decimation_factor (int): Fator de decimação. Ex: 10 reduz de 44100 Hz para 4410 Hz (default: 10).
         use_kalman (bool): Se True, aplica filtro de Kalman; caso contrário, filtro binomial.
 
     Retorna:
@@ -145,12 +145,12 @@ def prepare_signal(
     """
     signal = preprocess_signal(signal, fs, use_kalman=use_kalman)
 
-    max_samples = int(fs * duration)
+    max_samples = int(fs * max_audio_duration)
     signal = signal[:max_samples]
     if len(signal) == 0:
         raise ValueError("O sinal está vazio após o pré-processamento.")
     
-    signal = decimate(signal, q=downsample)
-    fs_new = fs // downsample
+    signal = decimate(signal, q=decimation_factor)
+    fs_new = fs // decimation_factor
 
     return signal, fs_new

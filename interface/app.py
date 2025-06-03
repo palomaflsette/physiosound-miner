@@ -52,14 +52,15 @@ fs = 4410
 signal = np.load("signal_example.npy")
 
 # Parâmetros interativos
-window_sec = st.sidebar.slider("Duração da janela (s)", 0.5, 2.0, 1.0, 0.1)
+window_duration_sec = st.sidebar.slider(
+    "Duração da janela (s)", 0.5, 2.0, 1.0, 0.1)
 overlap = st.sidebar.slider("Overlap", 0.0, 0.9, 0.5, 0.1)
 duration = st.sidebar.slider(
     "Duração usada na winding (s)", 0.5, 2.0, 1.0, 0.1)
 tau = st.sidebar.slider("Tau (embedding)", 1, 30, 10)
 dim = st.sidebar.selectbox("Dimensão do embedding", [2, 3])
 
-segments = segment_signal(signal, fs, window_sec, overlap)
+segments = segment_signal(signal, fs, window_duration_sec, overlap)
 selected_win = st.sidebar.slider("Janela", 0, len(segments)-1, 0)
 selected_segment = segments[selected_win]
 

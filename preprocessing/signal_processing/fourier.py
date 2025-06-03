@@ -20,6 +20,9 @@ def apply_fft(signal: np.ndarray, fs: int) -> Tuple[np.ndarray, np.ndarray, np.n
             - magnitudes: Normalized magnitude of the FFT.
             - fft_result: Complex FFT coefficients.
     """
+    if len(signal) < 512:
+         raise ValueError(f"Sinal muito curto para aplicar FFT: {len(signal)} amostras")
+
     N = len(signal)
     fft_result = np.fft.fft(signal)
     magnitudes = np.abs(fft_result[:N // 2]) * 2 / N

@@ -3,6 +3,11 @@ __pycache__/
 *.ipynb_checkpoints
 .env
 .env.*
+*tmp*
+*.csv
+*.xlsx
+*.wav
+*.parquet
 .vscode
 .virtual_documents
 data/raw/
