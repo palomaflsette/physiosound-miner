@@ -3,7 +3,7 @@ import numpy as np
 from typing import List
 
 
-def extract_mfcc_features(signal: np.ndarray, fs: int, n_mfcc: int = 13) -> List[float]:
+def extract_mfcc_features(signal: np.ndarray, fs: int, n_mfcc: int = 13, n_fft: int = 1024, hop_length: int = 512) -> List[float]:
     """
     Extrai coeficientes MFCC de um sinal de áudio mono.
 
@@ -15,5 +15,11 @@ def extract_mfcc_features(signal: np.ndarray, fs: int, n_mfcc: int = 13) -> List
     Returns:
         List[float]: Lista com os coeficientes médios de MFCC extraídos.
     """
-    mfccs = librosa.feature.mfcc(y=signal.astype(float), sr=fs, n_mfcc=n_mfcc)
-    return np.mean(mfccs, axis=1).tolist()
+    mfccs = librosa.feature.mfcc(
+        y=signal.astype(float),
+        sr=fs,
+        n_mfcc=n_mfcc,
+        n_fft=n_fft,
+        hop_length=hop_length
+    )
+    return mfccs.mean(axis=1).tolist()

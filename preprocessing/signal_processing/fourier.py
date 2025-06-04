@@ -6,13 +6,14 @@ import librosa
 
 
 
-def apply_fft(signal: np.ndarray, fs: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def apply_fft(signal: np.ndarray, fs: int, n_fft: int = 1024) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Apply Fast Fourier Transform (FFT) to a time-domain signal.
+    Apply FFT to a time-domain signal using fixed n_fft size.
 
     Parameters:
         signal (np.ndarray): Time-domain signal.
         fs (int): Sampling rate in Hz.
+        n_fft (int): FFT window size (default = 512)
 
     Returns:
         Tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -20,13 +21,16 @@ def apply_fft(signal: np.ndarray, fs: int) -> Tuple[np.ndarray, np.ndarray, np.n
             - magnitudes: Normalized magnitude of the FFT.
             - fft_result: Complex FFT coefficients.
     """
-    if len(signal) < 512:
-         raise ValueError(f"Sinal muito curto para aplicar FFT: {len(signal)} amostras")
-
-    N = len(signal)
-    fft_result = np.fft.fft(signal)
-    magnitudes = np.abs(fft_result[:N // 2]) * 2 / N
-    freqs = np.fft.fftfreq(N, d=1 / fs)[:N // 2]
+    if len(signal) < n_fft:
+        # Zero-padding à direita
+        padded_signal = np.pad(signal, (0, n_fft - len(signal)), mode='constant')
+    else:
+        #padded_signal = signal[:n_fft]  # recorte, se maior
+        padded_signal = signal
+    
+    fft_result = np.fft.fft(padded_signal, n=n_fft)
+    magnitudes = np.abs(fft_result[:n_fft // 2]) * 2 / n_fft
+    freqs = np.fft.fftfreq(n_fft, d=1 / fs)[:n_fft // 2]
     return freqs, magnitudes, fft_result
 
 
