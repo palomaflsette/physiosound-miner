@@ -13,18 +13,18 @@ import openpyxl
 from sklearn.preprocessing import OneHotEncoder
 from multiprocessing import Pool
 from pathlib import Path
-from preprocessing.features.its_compressibility import compute_its_compressibility
+from signal.features.its_compressibility import compute_its_compressibility
 from utils.audio_io import load_audio
 from utils.plot_utils import plot_takens_embedding, plot_winding_xy
-from preprocessing.signal_processing.preprocessing import preprocess_signal, prepare_signal
-from preprocessing.features.winding import get_winding_curve
-from preprocessing.signal_processing.fourier import apply_fft, get_dominant_frequencies
-from preprocessing.features.its import extract_its
-from preprocessing.features.features_extractor import extract_features_from_segmented_signal
-from preprocessing.features.mfcc import extract_mfcc_features
-from preprocessing.features.wavelet import extract_wavelet_features
-from preprocessing.segment_signal import segment_signal
-from preprocessing.features.takens_rqa import extract_rqa_features
+from signal.signal_processing.preprocessing import preprocess_signal, prepare_signal
+from signal.features.winding import get_winding_curve
+from signal.signal_processing.fourier import apply_fft, get_dominant_frequencies
+from signal.features.its import extract_its
+from signal.features.features_extractor import extract_features_from_segmented_signal
+from signal.features.mfcc import extract_mfcc_features
+from signal.features.wavelet import extract_wavelet_features
+from signal.segment_signal import segment_signal
+from signal.features.takens_rqa import extract_rqa_features
 import subprocess
 
 
