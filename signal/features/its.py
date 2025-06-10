@@ -1,8 +1,8 @@
 from typing import Tuple, List, Callable, Dict
 import pandas as pd
 import numpy as np
-from signal.segment_signal import segment_signal
-from signal.features.winding import extract_winding_features_extended
+from segment_signal import segment_signal
+from features.winding import extract_winding_features_extended
 
 
 def extract_its(signal: np.ndarray, fs: int, freqs: List[float], winding_duration: float = 1.0) -> List[dict]:

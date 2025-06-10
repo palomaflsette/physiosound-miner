@@ -3,7 +3,7 @@ import os
 sys.path.append(os.path.abspath("../../"))
 import numpy as np
 from typing import List, Dict
-from signal.signal_processing.wavelet import apply_wavelet_transform
+from signal_processing.wavelet import apply_wavelet_transform
 
 def extract_wavelet_features(signal: np.ndarray, wavelet: str = "db4", level: int = None) -> Dict[str, float]:
     """

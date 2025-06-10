@@ -1,14 +1,14 @@
 from typing import Tuple, List, Callable, Dict
 import pandas as pd
 import numpy as np
-from signal.segment_signal import segment_signal
-from signal.features.energy_entropy import (
+from segment_signal import segment_signal
+from features.energy_entropy import (
     compute_rms_energy,
     compute_spectral_entropy,
     compute_band_energy_ratios,
     compute_sample_entropy
 )
-from signal.features.temporal_shape import (
+from features.temporal_shape import (
     compute_spectral_centroid,
     compute_zero_crossing_rate,
     compute_skewness,
