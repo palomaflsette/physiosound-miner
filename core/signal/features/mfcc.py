@@ -15,11 +15,13 @@ def extract_mfcc_features(signal: np.ndarray, fs: int, n_mfcc: int = 13, n_fft: 
     Returns:
         List[float]: Lista com os coeficientes médios de MFCC extraídos.
     """
+    adjusted_n_fft = min(n_fft, len(signal))  # Evita warnings
+
     mfccs = librosa.feature.mfcc(
         y=signal.astype(float),
         sr=fs,
         n_mfcc=n_mfcc,
-        n_fft=n_fft,
+        n_fft=adjusted_n_fft,
         hop_length=hop_length
     )
     return mfccs.mean(axis=1).tolist()

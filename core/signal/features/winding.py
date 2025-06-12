@@ -187,4 +187,4 @@ def save_windings_as_npy(signal: np.ndarray,
 
         filename = os.path.join(output_dir, f"{prefix}_{f:.2f}Hz.npy")
         np.save(filename, data)
-        print(f"✔️ Winding salvo: {filename}")
+        print(f"Winding salvo: {filename}")
