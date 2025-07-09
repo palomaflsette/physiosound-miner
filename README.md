@@ -12,7 +12,7 @@ Um framework robusto para extração de características multidomínio e classif
 
 <a name="portugues"></a>
 
-## PhysioSound-Miner (Português)
+## PhysioSound-Miner
 
 ### Visão Geral
 
@@ -117,6 +117,134 @@ Se você utilizar este código ou a metodologia em sua pesquisa, por favor, cite
 @inproceedings{Sette2025,
   author    = {Sette, Paloma F. L.},
   title     = {Classificação de Sons Cardíacos com Aprendizado Estatístico e Neural: Detecção de Sopros por Modelagem Morfológica, Topológica e Recorrente de Sinais de Ausculta},
+  year      = {2025},
+  howpublished = {\url{https://github.com/palomaflsette/physiosound-miner}},
+  address   = {Rio de Janeiro, Brasil},
+  publisher = {}
+}
+```
+
+----
+
+# PhysioSound-Miner
+
+[Português](#portugues) | [English](#english)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Python Version](https://img.shields.io/badge/python-3.9+-brightgreen.svg)](https://www.python.org/)
+[![Status](https://img.shields.io/badge/status-active-success.svg)](#)
+
+A robust framework for multi-domain feature extraction and classification of physiological sounds, focusing on phonocardiograms.
+
+---
+
+<a name="english"></a>
+
+## PhysioSound-Miner
+
+### Overview
+
+**PhysioSound-Miner** is a Python research and development project focused on computational analysis of physiological sounds, with primary application in heart murmur detection from phonocardiograms (PCG). The methodology integrates classical signal processing techniques with innovative topological and dynamical analysis approaches to create a rich and discriminative feature vector.
+
+This repository contains the source code for signal preprocessing, feature extraction, machine learning model training, and interpretability (XAI), as presented in the paper:
+
+> **Heart Sound Classification with Statistical and Neural Learning: Murmur Detection through Morphological, Topological and Recurrent Modeling of Auscultation Signals.**
+
+### Key Features
+
+* **Multi-domain Extraction:** Combines features from spectral, temporal, dynamic, and topological domains.
+* **Innovative Topological Analysis:** Implementation of the **Synthetic Topological Index (STI)** based on Winding Curves, an original contribution for PCG characterization.
+* **Recurrence Analysis (RQA):** Captures non-linear dynamics and signal complexity.
+* **Modular Pipeline:** Code organized into modules for preprocessing, feature extraction, and utilities, facilitating reuse and expansion.
+* **Modeling and Interpretability:** Notebooks with complete pipelines for training, rigorous validation (`StratifiedGroupKFold`), and model interpretability with SHAP.
+* **Reproducibility:** Includes environment files (`env.yml`, `requirements.txt`) to ensure easy experiment replication.
+
+### Project Structure
+
+```
+PHYSIOSOUND-MINER/
+│
+├── core/
+│   ├── signal/
+│   │   ├── features/             # Extraction modules (its.py, mfcc.py, takens_rqa.py...)
+│   │   └── signal_processing/    # Processing modules (preprocessing.py...)
+│   └── utils/                    # Utilities (audio_io.py, plot_utils.py...)
+│
+├── data/
+│   └── datasets/                 # Raw and processed datasets
+│
+├── models/                       # Trained and saved models
+│   ├── meu_pipeline_completo.pkl
+│   └── label_encoder.pkl
+│
+├── notebooks/                    # Analysis and modeling notebooks
+│   └── modelagem_normal_vs_sopro_Kalman.ipynb
+│
+├── env.yml                       # Conda environment file
+├── requirements.txt              # pip dependencies list
+└── README.md 
+```
+
+### Installation
+
+To set up the environment and install dependencies, choose one of the options below.
+
+**Using Conda (Recommended)**
+
+```bash
+git clone https://github.com/your-username/physiosound-miner.git
+cd physiosound-miner
+```
+
+#### Create the Conda environment from the .yml file
+
+```
+conda env create -f env.yml
+```
+
+#### Activate the environment
+
+```
+conda activate physiosound
+```
+
+### How to Use
+
+1. **Feature Extraction**
+
+The framework is designed to be modular. You can import and use the feature extraction modules in your own scripts.
+
+```python
+from core.signal.features import its, rqa
+from core.utils import audio_io
+
+fs, signal_data = audio_io.load_audio('path/to/your/audio.wav')
+
+its_features = its.calculate_its_features(signal_data, fs)
+rqa_features = rqa.calculate_rqa_features(signal_data, m=3, tau=4, threshold=0.1)
+
+print("ITS Features:", its_features)
+```
+
+2. **Model Training and Evaluation**
+
+The complete analysis, from data exploration to final model evaluation, is documented in
+`notebooks/base_vertical/modelagem_normal_vs_sopro_Kalman.ipynb`
+
+To run the notebook, start Jupyter Lab or Jupyter Notebook from the activated environment:
+
+3. **Using the Pre-trained Model**
+
+A complete and trained pipeline is available in the core/models/ directory. It can be used to make predictions on new audio data (after extracting the corresponding features).
+
+### How to Cite
+
+If you use this code or methodology in your research, please cite our work:
+
+```bibtex
+@inproceedings{Sette2025,
+  author    = {Sette, Paloma F. L.},
+  title     = {Heart Sound Classification with Statistical and Neural Learning: Murmur Detection through Morphological, Topological and Recurrent Modeling of Auscultation Signals},
   year      = {2025},
   howpublished = {\url{https://github.com/palomaflsette/physiosound-miner}},
   address   = {Rio de Janeiro, Brasil},
