@@ -6,7 +6,6 @@ from scipy.io import wavfile
 wav_path = 'data/raw_data/HS_normal_sopro/F_S3_LLSB.wav'
 
 def senoides_comparativas(wav_path):
-     #wav_path = 'data/raw_data/HS_normal_sopro/H0135.wav'
 
      fs, signal = wavfile.read(wav_path)
 
@@ -47,7 +46,6 @@ def analyze_audio_winding_detailed(filepath: str, freq_range: tuple = (20, 500),
     signal = signal[:max_samples]
     signal = signal / np.max(np.abs(signal))
 
-    # Mais frequências para análise mais fina
     frequencies = np.linspace(freq_range[0], freq_range[1], n_freqs)
     centroid_distances = []
 
@@ -62,34 +60,29 @@ def analyze_audio_winding_detailed(filepath: str, freq_range: tuple = (20, 500),
 
     centroid_distances = np.array(centroid_distances)
 
-    # Detectar MÚLTIPLOS picos (frequências dominantes)
     from scipy.signal import find_peaks
     peaks, properties = find_peaks(
         centroid_distances,
         height=np.max(centroid_distances) *
-        min_prominence,  # Mínimo 10% do pico máximo
-        distance=5,  # Picos devem estar separados por pelo menos 5 amostras
-        prominence=np.max(centroid_distances) * 0.05  # Proeminência mínima
+        min_prominence,  
+        distance=5,  
+        prominence=np.max(centroid_distances) * 0.05  
     )
 
     dominant_freqs = frequencies[peaks]
     dominant_strengths = centroid_distances[peaks]
 
-    # Ordenar por força (mais forte primeiro)
     sorted_indices = np.argsort(dominant_strengths)[::-1]
     dominant_freqs = dominant_freqs[sorted_indices]
     dominant_strengths = dominant_strengths[sorted_indices]
 
-    # Plot detalhado
     plt.figure(figsize=(15, 8))
 
-    # Subplot 1: Espectro completo
     plt.subplot(2, 1, 1)
     plt.plot(frequencies, centroid_distances, 'b-', linewidth=1.5, alpha=0.7)
     plt.scatter(dominant_freqs, dominant_strengths,
                 color='red', s=100, zorder=5)
 
-    # Anotar as frequências detectadas
     for i, (freq, strength) in enumerate(zip(dominant_freqs[:5], dominant_strengths[:5])):
         plt.annotate(f'{freq:.1f} Hz',
                      xy=(freq, strength),
@@ -103,10 +96,8 @@ def analyze_audio_winding_detailed(filepath: str, freq_range: tuple = (20, 500),
         f"Análise Winding - Todas as Frequências Detectadas ({duration}s)")
     plt.grid(True, alpha=0.3)
 
-    # Subplot 2: Zoom nas frequências mais fortes
     plt.subplot(2, 1, 2)
     if len(dominant_freqs) > 0:
-        # Mostrar só as top 10 mais fortes
         top_freqs = dominant_freqs[:10]
         top_strengths = dominant_strengths[:10]
 
@@ -119,7 +110,6 @@ def analyze_audio_winding_detailed(filepath: str, freq_range: tuple = (20, 500),
         plt.title("Top 10 Frequências Mais Fortes")
         plt.grid(True, alpha=0.3)
 
-        # Anotar valores nas barras
         for i, (bar, strength) in enumerate(zip(bars, top_strengths)):
             plt.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.001,
                      f'{strength:.3f}', ha='center', va='bottom', fontsize=9)
@@ -127,8 +117,7 @@ def analyze_audio_winding_detailed(filepath: str, freq_range: tuple = (20, 500),
     plt.tight_layout()
     plt.show()
 
-    # Relatório detalhado
-    print(f"\n🎯 FREQUÊNCIAS DETECTADAS (Total: {len(dominant_freqs)}):")
+    print(f"\n FREQUÊNCIAS DETECTADAS (Total: {len(dominant_freqs)}):")
     print("="*50)
     for i, (freq, strength) in enumerate(zip(dominant_freqs, dominant_strengths)):
         print(f"{i+1:2d}. {freq:6.1f} Hz - Força: {strength:.4f}")
@@ -138,7 +127,6 @@ def analyze_audio_winding_detailed(filepath: str, freq_range: tuple = (20, 500),
 
     return dominant_freqs, dominant_strengths
 
-# Versão com análise por janelas temporais
 
 
 def analyze_audio_winding_temporal(filepath: str, window_duration: float = 0.5,
@@ -156,7 +144,6 @@ def analyze_audio_winding_temporal(filepath: str, window_duration: float = 0.5,
     window_samples = int(fs * window_duration)
     step_samples = int(fs * overlap)
 
-    # Dividir em janelas
     windows = []
     window_times = []
 
@@ -167,7 +154,6 @@ def analyze_audio_winding_temporal(filepath: str, window_duration: float = 0.5,
 
     print(f"Analisando {len(windows)} janelas de {window_duration}s cada...")
 
-    # Analisar cada janela
     all_results = []
     for i, window in enumerate(windows):
         frequencies = np.linspace(freq_range[0], freq_range[1], 50)
@@ -181,7 +167,6 @@ def analyze_audio_winding_temporal(filepath: str, window_duration: float = 0.5,
 
         all_results.append(centroid_distances)
 
-    # Plot temporal
     all_results = np.array(all_results)
 
     plt.figure(figsize=(15, 8))
@@ -192,7 +177,6 @@ def analyze_audio_winding_temporal(filepath: str, window_duration: float = 0.5,
     plt.title(
         f'Evolução Temporal das Frequências (janelas de {window_duration}s)')
 
-    # Configurar eixos
     plt.yticks(range(0, len(frequencies), 10),
                [f'{frequencies[i]:.0f}' for i in range(0, len(frequencies), 10)])
     plt.xticks(range(0, len(window_times), max(1, len(window_times)//10)),
@@ -224,38 +208,31 @@ def analyze_winding_universal(signal=None, fs=None, filepath=None,
         dict com frequências dominantes, distâncias e dados completos
     """
 
-    # === CARREGAR SINAL ===
     if signal is not None and fs is not None:
-        # Usar sinal fornecido diretamente
         audio_signal = signal.copy()
         sample_rate = fs
     elif filepath is not None:
-        # Carregar do arquivo
         sample_rate, audio_signal = load_audio(filepath)
     else:
         raise ValueError("Forneça 'signal + fs' OU 'filepath'")
 
-    # === PRÉ-PROCESSAMENTO ===
     if audio_signal.ndim > 1:
         audio_signal = audio_signal[:, 0]
 
-    # Recortar duração
     max_samples = int(sample_rate * duration)
     audio_signal = audio_signal[:max_samples]
 
-    # Normalizar
     audio_signal = audio_signal / np.max(np.abs(audio_signal))
 
-    # === ANÁLISE WINDING ===
+
     frequencies = np.linspace(freq_range[0], freq_range[1], n_freqs)
     centroid_distances = []
-    winding_data = []  # Para armazenar dados completos
+    winding_data = [] 
 
     print(
         f"Analisando {n_freqs} frequências de {freq_range[0]} a {freq_range[1]} Hz...")
 
     for freq in frequencies:
-        # Gerar dados winding para esta frequência
         x, y = generate_winding_data(audio_signal, sample_rate, freq)
         cx, cy = np.mean(x), np.mean(y)
         distance = np.sqrt(cx**2 + cy**2)
@@ -270,7 +247,6 @@ def analyze_winding_universal(signal=None, fs=None, filepath=None,
 
     centroid_distances = np.array(centroid_distances)
 
-    # === DETECTAR PICOS ===
     from scipy.signal import find_peaks
     peaks, properties = find_peaks(
         centroid_distances,
@@ -281,14 +257,12 @@ def analyze_winding_universal(signal=None, fs=None, filepath=None,
     dominant_freqs = frequencies[peaks]
     dominant_distances = centroid_distances[peaks]
 
-    # === PLOTS ===
     if plot_spectrum:
         plt.figure(figsize=(12, 4))
         plt.plot(frequencies, centroid_distances, 'b-', linewidth=2, alpha=0.7)
         plt.scatter(dominant_freqs, dominant_distances,
                     color='red', s=100, zorder=5)
 
-        # Anotar picos
         for freq, dist in zip(dominant_freqs, dominant_distances):
             plt.annotate(f'{freq:.1f} Hz',
                          xy=(freq, dist), xytext=(freq, dist + 0.01),
@@ -303,8 +277,7 @@ def analyze_winding_universal(signal=None, fs=None, filepath=None,
         plt.show()
 
     if plot_curves and len(dominant_freqs) > 0:
-        # Plotar curvas das frequências dominantes
-        n_plots = min(4, len(dominant_freqs))  # Máximo 4 plots
+        n_plots = min(4, len(dominant_freqs))  
         fig, axes = plt.subplots(1, n_plots, figsize=(6*n_plots, 6))
 
         if n_plots == 1:
@@ -312,13 +285,11 @@ def analyze_winding_universal(signal=None, fs=None, filepath=None,
 
         for i in range(n_plots):
             freq = dominant_freqs[i]
-            # Encontrar dados desta frequência
             freq_data = next(d for d in winding_data if abs(
                 d['frequency'] - freq) < 0.1)
             x, y = freq_data['x'], freq_data['y']
             cx, cy = freq_data['centroid']
 
-            # Plot melhorado com centróide destacado
             axes[i].plot(x, y, color='mediumturquoise',
                          linewidth=1.5, alpha=0.7, zorder=1)
             axes[i].scatter(cx, cy, color='red', s=150, zorder=10,
@@ -336,7 +307,6 @@ def analyze_winding_universal(signal=None, fs=None, filepath=None,
         plt.tight_layout()
         plt.show()
 
-    # === RESULTADOS ===
     results = {
         'frequencies': frequencies,
         'centroid_distances': centroid_distances,
@@ -356,7 +326,7 @@ def analyze_winding_universal(signal=None, fs=None, filepath=None,
 
     return results
 
-# === FUNÇÕES DE CONVENIÊNCIA ===
+
 
 
 def analyze_from_file(filepath, **kwargs):
@@ -379,5 +349,5 @@ def quick_winding_analysis(signal, fs, target_freq):
 
     return {'centroid': (cx, cy), 'distance': distance}
 
-#analyze_audio_winding_temporal(wav_path)
+
 analyze_winding_universal(filepath=wav_path, duration=2.5)

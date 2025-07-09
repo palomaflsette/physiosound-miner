@@ -157,7 +157,6 @@ def plot_frequency_components(signal: np.ndarray, fs: int, freqs: List[float], b
         filtered[mask] = spectrum[mask]
         reconstructed = np.real(ifft(filtered))
 
-        # FFT da componente reconstruída
         component_spectrum = np.abs(fft(reconstructed))[:N // 2] * 2 / N
         component_freqs = fft_freqs[:N // 2]
 
@@ -197,7 +196,7 @@ def plot_winding_xy(x, y, freq=None, title=None, show_center=True, return_fig=Fa
         return fig
     else:
         plt.tight_layout()
-        plt.show()  # só funciona no Jupyter
+        plt.show() 
 
 
 def generate_winding_data(signal: np.ndarray, fs: int, freq: float):
@@ -213,7 +212,7 @@ def generate_winding_data(signal: np.ndarray, fs: int, freq: float):
         x, y: coordenadas da curva winding
     """
     N = len(signal)
-    t = np.arange(N) / fs  # vetor tempo
+    t = np.arange(N) / fs 
 
     winding_freq = 2 * np.pi * freq
     complex_signal = signal * np.exp(-1j * winding_freq * t)
@@ -227,16 +226,14 @@ def plot_winding_xy(x, y, freq=None, title=None, show_center=True, return_fig=Fa
     fig, ax = plt.subplots(figsize=(6, 6))
     cx, cy = np.mean(x), np.mean(y)
 
-    # Curva por baixo
     ax.plot(x, y, color='mediumturquoise', linewidth=1, alpha=0.7, zorder=1)
     
-    # Centróide por cima - MAIS VISÍVEL
     if show_center:
         ax.scatter(cx, cy, color='red', s=150, label='Centroid', 
-                  zorder=10, edgecolors='black', linewidth=2)  # ← MUDANÇAS AQUI
+                  zorder=10, edgecolors='black', linewidth=2)  
     
     ax.axis('equal')
-    ax.grid(True, alpha=0.3, zorder=0)  # Grid por trás
+    ax.grid(True, alpha=0.3, zorder=0)  
 
     if title:
         ax.set_title(title)
@@ -263,12 +260,12 @@ def plot_winding_xy_enhanced(x, y, freq=None, title=None, show_center=True, retu
     ax.plot(x, y, color='mediumturquoise', linewidth=1.5, alpha=0.6, zorder=1)
     
     if show_center:
-        # Centróide com halo para destacar ainda mais
+
         ax.scatter(cx, cy, color='white', s=200, zorder=9, alpha=0.8)  # Halo branco
         ax.scatter(cx, cy, color='red', s=120, zorder=10, 
                   edgecolors='darkred', linewidth=3, label='Centroid')  # Centróide vermelho
         
-        # Adicionar coordenadas do centróide
+
         ax.annotate(f'({cx:.3f}, {cy:.3f})', 
                    xy=(cx, cy), xytext=(cx+0.1, cy+0.1),
                    fontsize=10, ha='left',
@@ -300,25 +297,22 @@ def plot_winding_xy_professional(x, y, freq=None, title=None, show_center=True, 
     fig, ax = plt.subplots(figsize=(8, 8))
     cx, cy = np.mean(x), np.mean(y)
 
-    # Curva winding com gradiente de cor (opcional)
     ax.plot(x, y, color='mediumturquoise', linewidth=1.5, alpha=0.7, zorder=1)
     
     if show_center:
-        # Cruz de referência no centróide
+
         ax.axhline(y=cy, color='gray', linestyle='--', alpha=0.5, zorder=2)
         ax.axvline(x=cx, color='gray', linestyle='--', alpha=0.5, zorder=2)
         
-        # Centróide destacado
         ax.scatter(cx, cy, color='red', s=200, zorder=10, 
                   edgecolors='darkred', linewidth=3, 
                   marker='o', label='Centroid')
         
-        # Distância do centróide à origem
         distance = np.sqrt(cx**2 + cy**2)
         ax.plot([0, cx], [0, cy], 'r--', linewidth=2, alpha=0.8, zorder=9,
                label=f'Distance: {distance:.3f}')
         
-        # Origem marcada
+ 
         ax.scatter(0, 0, color='black', s=100, marker='x', linewidth=3, zorder=10)
     
     ax.axis('equal')
