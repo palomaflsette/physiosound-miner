@@ -115,7 +115,7 @@ Se você utilizar este código ou a metodologia em sua pesquisa, por favor, cite
 
 ```
 @inproceedings{Sette2025,
-  author    = {Sette, Paloma F. L.},
+  author    = {Sette, Paloma F. L., Karla T. Figueiredo Leite, Marley M. B. R. Vellasco},
   title     = {Classificação de Sons Cardíacos com Aprendizado Estatístico e Neural: Detecção de Sopros por Modelagem Morfológica, Topológica e Recorrente de Sinais de Ausculta},
   year      = {2025},
   howpublished = {\url{https://github.com/palomaflsette/physiosound-miner}},
@@ -243,7 +243,7 @@ If you use this code or methodology in your research, please cite our work:
 
 ```bibtex
 @inproceedings{Sette2025,
-  author    = {Sette, Paloma F. L.},
+  author    = {Sette, Paloma F. L., Karla T. Figueiredo Leite, Marley M. B. R. Vellasco},
   title     = {Heart Sound Classification with Statistical and Neural Learning: Murmur Detection through Morphological, Topological and Recurrent Modeling of Auscultation Signals},
   year      = {2025},
   howpublished = {\url{https://github.com/palomaflsette/physiosound-miner}},
