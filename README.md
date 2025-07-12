@@ -16,7 +16,7 @@ Um framework robusto para extração de características multidomínio e classif
 
 ### Visão Geral
 
-O **PhysioSound-Miner** é um projeto de pesquisa e desenvolvimento em Python focado na análise computacional de sons fisiológicos, com aplicação principal na detecção de sopros cardíacos a partir de fonocardiogramas (FCG). A metodologia integra técnicas clássicas de processamento de sinais com abordagens inovadoras de análise topológica e dinâmica para criar um vetor de características rico e discriminativo.
+O **PhysioSound-Miner** é um projeto de pesquisa e desenvolvimento focado na análise computacional de sons fisiológicos, com aplicação principal na detecção de sopros cardíacos a partir de fonocardiogramas (FCG). A metodologia integra técnicas clássicas de processamento de sinais com abordagens inovadoras de análise topológica e dinâmica para criar um vetor de características rico e discriminativo.
 
 Este repositório contém o código-fonte para o pré-processamento de sinais, extração de características, treinamento de modelos de *machine learning* e interpretabilidade (XAI), conforme apresentado no artigo:
 
@@ -144,7 +144,7 @@ A robust framework for multi-domain feature extraction and classification of phy
 
 ### Overview
 
-**PhysioSound-Miner** is a Python research and development project focused on computational analysis of physiological sounds, with primary application in heart murmur detection from phonocardiograms (PCG). The methodology integrates classical signal processing techniques with innovative topological and dynamical analysis approaches to create a rich and discriminative feature vector.
+**PhysioSound-Miner** is a research and development project focused on computational analysis of physiological sounds, with primary application in heart murmur detection from phonocardiograms (PCG). The methodology integrates classical signal processing techniques with innovative topological and dynamical analysis approaches to create a rich and discriminative feature vector.
 
 This repository contains the source code for signal preprocessing, feature extraction, machine learning model training, and interpretability (XAI), as presented in the paper:
 
